@@ -73,12 +73,14 @@ public class MainActivity extends AppCompatActivity {
             else {itemList.add(items[i]);}
         }
 
-        /*Sorts by list ID, then sorts lexicographically by name
-        * also option to sort by id instead which'll sort name in natural order commented out*/
-        Comparator<Item> itemComparator = Comparator.comparing(Item::getListId)
-                        //.thenComparing(Item::getId);
-                        .thenComparing(Item::getItemName);
-        Collections.sort(itemList, itemComparator);
+        //Sorts by list ID, then sorts naturally by name
+        Comparator<Item> comparator
+                = Comparator.comparing(Item::getListId)
+                .thenComparing(value -> {
+                    int indexOf = value.name.indexOf(' ');
+                    return Integer.parseInt(value.name.substring(indexOf + 1));
+                });
+        Collections.sort(itemList, comparator);
 
         //converts items to a string to be return and displayed.
         for (int i=0; i<itemList.size(); i++)
