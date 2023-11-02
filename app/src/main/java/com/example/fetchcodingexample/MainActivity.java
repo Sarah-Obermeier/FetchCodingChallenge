@@ -1,7 +1,9 @@
 package com.example.fetchcodingexample;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -25,16 +27,30 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView output;
     private Button getItems;
+    private RecyclerView output2;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         output = (TextView) findViewById(R.id.outputTextView);
+        output2 = (RecyclerView) findViewById(R.id.recyclerView);
         getItems = (Button) findViewById(R.id.getItemsButton);
         //make textview scrollable
         output.setMovementMethod(new ScrollingMovementMethod());
+
+        String s1[] = new String[0];
+        try {
+            s1 = new String[]{deserializeItem()};
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        recyclerAdapter recyclerAdapter = new recyclerAdapter(this, s1);
 
         getItems.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String itemText = deserializeItem();
                     output.setText(itemText);
+
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 } catch (JSONException e) {
