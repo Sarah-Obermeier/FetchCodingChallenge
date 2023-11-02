@@ -1,6 +1,7 @@
 package com.example.fetchcodingexample;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
@@ -52,12 +53,15 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerAdapter recyclerAdapter = new recyclerAdapter(this, s1);
 
+        output2.setLayoutManager(new LinearLayoutManager(this));
+
         getItems.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
                     String itemText = deserializeItem();
-                    output.setText(itemText);
+                    //output.setText(itemText);
+                    output2.setAdapter(recyclerAdapter);
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
