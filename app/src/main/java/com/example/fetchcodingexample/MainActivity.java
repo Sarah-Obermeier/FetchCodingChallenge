@@ -5,6 +5,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -13,10 +15,9 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import org.json.JSONException;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,9 +27,10 @@ import org.apache.commons.io.*;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView output;
-    private Button getItems;
-    private RecyclerView output2;
+    private RecyclerView recyclerView;
+    private TextView textView;
+    private Button button;
+    //private RecyclerView output2;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -36,80 +38,97 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        output = (TextView) findViewById(R.id.outputTextView);
-        output2 = (RecyclerView) findViewById(R.id.recyclerView);
-        getItems = (Button) findViewById(R.id.getItemsButton);
-        //make textview scrollable
-        output.setMovementMethod(new ScrollingMovementMethod());
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        button = (Button) findViewById(R.id.getItemsButton);
 
         String s1[] = new String[0];
-        try {
-            s1 = new String[]{deserializeItem()};
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
 
-        recyclerAdapter recyclerAdapter = new recyclerAdapter(this, s1);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        output2.setLayoutManager(new LinearLayoutManager(this));
-
-        getItems.setOnClickListener(new View.OnClickListener() {
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    String itemText = deserializeItem();
-                    //output.setText(itemText);
-                    output2.setAdapter(recyclerAdapter);
+                    String itemText = new DeserializeItem().toString();
+                    DeserializeItem di = new DeserializeItem();
+                    di.execute("temp");
 
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
         });
     }
 
-    private String deserializeItem() throws IOException, JSONException {
-        String itemText = "";
-        String jsonUrl = "https://fetch-hiring.s3.amazonaws.com/hiring.json";
-        Gson gson = new Gson();
+    public class DeserializeItem extends AsyncTask<String, String, List<Item>> {
+        //private Context context;
 
-        //Reads data from JSON File and converts it to a string
-        InputStream is = getAssets().open("fetchJSONFile.json");
-        String jsonTxt = IOUtils.toString(is, "UTF-8");
-        is.close();
+        @Override
+        protected List<Item> doInBackground(String... urls) {
+            try {
+                String itemText = "";
+                String jsonUrl = "https://fetch-hiring.s3.amazonaws.com/hiring.json";
+                Gson gson = new Gson();
 
-        //Convert json string to array of Item objects
-        Item[] items = gson.fromJson(jsonTxt, Item[].class);
-        List<Item> itemList = new ArrayList<Item>();
+                //Reads data from JSON File and converts it to a string
+                InputStream is = new URL(jsonUrl).openStream();
+                String jsonTxt = IOUtils.toString(is, "UTF-8");
+                is.close();
 
-        //Eliminates objects with null and empty item names
-        for (int i=0; i<items.length; i++)
-        {
-            if (items[i].getItemName() == null) {continue;}
-            else if (items[i].getItemName().equals("")) {continue;}
-            else {itemList.add(items[i]);}
+                //Convert json string to array of Item objects
+                Item[] items = gson.fromJson(jsonTxt, Item[].class);
+                List<Item> itemList = new ArrayList<Item>();
+
+                //Eliminates objects with null and empty item names
+                for (int i=0; i<items.length; i++)
+                {
+                    if (items[i].getItemName() == null) {continue;}
+                    else if (items[i].getItemName().equals("")) {continue;}
+                    else {itemList.add(items[i]);}
+                }
+                sortList(itemList);
+                return itemList;
+
+            }
+            catch(IOException e){
+                throw new RuntimeException(e);
+            }
         }
 
-        //Sorts by list ID, then sorts naturally by name
-        Comparator<Item> comparator
-                = Comparator.comparing(Item::getListId)
-                .thenComparing(value -> {
-                    int indexOf = value.name.indexOf(' ');
-                    return Integer.parseInt(value.name.substring(indexOf + 1));
-                });
-        Collections.sort(itemList, comparator);
-
-        //converts items to a string to be return and displayed.
-        for (int i=0; i<itemList.size(); i++)
+        List<Item> sortList(List<Item> itemList)
         {
-            itemText += itemList.get(i).toString();
+            try {
+                Comparator<Item> comparator
+                        = Comparator.comparing(Item::getListId)
+                        .thenComparing(value -> {
+                            int indexOf = value.name.indexOf(' ');
+                            return Integer.parseInt(value.name.substring(indexOf + 1));
+                        });
+                Collections.sort(itemList, comparator);
+                return itemList;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-        return itemText;
+
+        @Override
+        protected void onPostExecute(List<Item> itemList)
+        {
+            int duration = Toast.LENGTH_SHORT;
+            String[] itemText = new String[itemList.size()];
+
+            //converts items to a string to be returned and displayed
+            for (int i=0; i<itemList.size(); i++)
+            {
+                itemText[i] = itemList.get(i).toString();
+            }
+                putDataIntoRecyclerView(itemText);
+        }
+
+        void putDataIntoRecyclerView(String[] itemList)
+        {
+            RecyclerAdapter recyclerAdapter = new RecyclerAdapter(MainActivity.this, itemList);
+            recyclerView.setAdapter(recyclerAdapter);
+        }
     }
-
-
 }
