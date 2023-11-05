@@ -9,7 +9,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.*;
 import android.widget.TextView;
@@ -22,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,7 +33,6 @@ import org.apache.commons.io.*;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private TextView textView;
     private Button button;
 
     @SuppressLint("MissingInflatedId")
@@ -45,15 +44,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         button = (Button) findViewById(R.id.getItemsButton);
 
-        String s1[] = new String[0];
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    String itemText = new DeserializeItem().toString();
+                    //String itemText = new DeserializeItem().toString();
                     DeserializeItem di = new DeserializeItem();
                     di.execute("https://fetch-hiring.s3.amazonaws.com/hiring.json");
 
@@ -78,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //Reads data from JSON URL and converts it to a string
                 InputStream is = new URL(urls[0]).openStream();
-                String jsonTxt = IOUtils.toString(is, "UTF-8");
+                String jsonTxt = IOUtils.toString(is, StandardCharsets.UTF_8);
                 is.close();
 
                 //code used to test other input variations
@@ -147,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 putDataIntoRecyclerView(itemText);
         }
 
+        //occurs when an error happens while deserializing the json file
         @Override
         protected void onCancelled()
         {
