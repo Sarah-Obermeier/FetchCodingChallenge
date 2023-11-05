@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TextView textView;
     private Button button;
-    //private RecyclerView output2;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -59,7 +58,11 @@ public class MainActivity extends AppCompatActivity {
                     di.execute("https://fetch-hiring.s3.amazonaws.com/hiring.json");
 
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                    dialog.setTitle("WARNING");
+                    dialog.setMessage("Something went wrong");
+                    dialog.setNeutralButton("Ok", null);
+                    dialog.create().show();
                 }
             }
         });
@@ -74,14 +77,14 @@ public class MainActivity extends AppCompatActivity {
                 Gson gson = new Gson();
 
                 //Reads data from JSON URL and converts it to a string
-                /*InputStream is = new URL(urls[0]).openStream();
-                String jsonTxt = IOUtils.toString(is, "UTF-8");
-                is.close();*/
-
-                //code used to test other input
-                InputStream is = getAssets().open("fetchJSONFile.json");
+                InputStream is = new URL(urls[0]).openStream();
                 String jsonTxt = IOUtils.toString(is, "UTF-8");
                 is.close();
+
+                //code used to test other input variations
+                /*InputStream is = getAssets().open("fetchJSONFile.json");
+                String jsonTxt = IOUtils.toString(is, "UTF-8");
+                is.close();*/
 
                 //Convert json string to array of Item objects
                 Item[] items = gson.fromJson(jsonTxt, Item[].class);
@@ -99,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
             catch(Exception e){
-                throw new RuntimeException(e);
+                cancel(true);
+                return null;
             }
         }
 
@@ -109,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 Comparator<Item> comparator
                         = Comparator.comparing(Item::getListId)
                         .thenComparing(value -> {
-                            if (android.text.TextUtils.isDigitsOnly(value.name.substring(10)))
+                            if (android.text.TextUtils.isDigitsOnly(value.name.substring(5)))
                                 return Integer.parseInt(value.name.substring(5));
                             else
                                 return Integer.MAX_VALUE;
@@ -117,15 +121,15 @@ public class MainActivity extends AppCompatActivity {
                 Collections.sort(itemList, comparator);
                 return itemList;
             } catch (Exception e) {
-                alertUser(MainActivity.this);
+                cancel(true);
             }
-            finally {return itemList;}
+            return itemList;
         }
 
         public void alertUser(Context context){
             AlertDialog.Builder dialog = new AlertDialog.Builder(context);
             dialog.setTitle("WARNING");
-            dialog.setMessage(this.toString());
+            dialog.setMessage("Something went wrong");
             dialog.setNeutralButton("Ok", null);
             dialog.create().show();
         }
@@ -141,6 +145,13 @@ public class MainActivity extends AppCompatActivity {
                 itemText[i] = itemList.get(i).toString();
             }
                 putDataIntoRecyclerView(itemText);
+        }
+
+        @Override
+        protected void onCancelled()
+        {
+            super.onCancelled();
+            alertUser(MainActivity.this);
         }
 
         void putDataIntoRecyclerView(String[] itemList)
