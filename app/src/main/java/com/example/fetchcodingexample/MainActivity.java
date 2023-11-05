@@ -1,5 +1,6 @@
 package com.example.fetchcodingexample;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,14 +15,18 @@ import android.widget.*;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.*;
 
@@ -51,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String itemText = new DeserializeItem().toString();
                     DeserializeItem di = new DeserializeItem();
-                    di.execute("temp");
+                    di.execute("https://fetch-hiring.s3.amazonaws.com/hiring.json");
 
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -61,17 +66,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class DeserializeItem extends AsyncTask<String, String, List<Item>> {
-        //private Context context;
 
         @Override
         protected List<Item> doInBackground(String... urls) {
             try {
-                String itemText = "";
-                String jsonUrl = "https://fetch-hiring.s3.amazonaws.com/hiring.json";
+                //String jsonUrl = "https://fetch-hiring.s3.amazonaws.com/hiring.json";
                 Gson gson = new Gson();
 
-                //Reads data from JSON File and converts it to a string
-                InputStream is = new URL(jsonUrl).openStream();
+                //Reads data from JSON URL and converts it to a string
+                /*InputStream is = new URL(urls[0]).openStream();
+                String jsonTxt = IOUtils.toString(is, "UTF-8");
+                is.close();*/
+
+                //code used to test other input
+                InputStream is = getAssets().open("fetchJSONFile.json");
                 String jsonTxt = IOUtils.toString(is, "UTF-8");
                 is.close();
 
@@ -86,35 +94,45 @@ public class MainActivity extends AppCompatActivity {
                     else if (items[i].getItemName().equals("")) {continue;}
                     else {itemList.add(items[i]);}
                 }
-                sortList(itemList);
+                itemList = sortList(itemList);
                 return itemList;
 
             }
-            catch(IOException e){
+            catch(Exception e){
                 throw new RuntimeException(e);
             }
         }
 
-        List<Item> sortList(List<Item> itemList)
-        {
+        //Sorts the data to be displayed
+        List<Item> sortList(List<Item> itemList) {
             try {
                 Comparator<Item> comparator
                         = Comparator.comparing(Item::getListId)
                         .thenComparing(value -> {
-                            int indexOf = value.name.indexOf(' ');
-                            return Integer.parseInt(value.name.substring(indexOf + 1));
+                            if (android.text.TextUtils.isDigitsOnly(value.name.substring(10)))
+                                return Integer.parseInt(value.name.substring(5));
+                            else
+                                return Integer.MAX_VALUE;
                         });
                 Collections.sort(itemList, comparator);
                 return itemList;
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                alertUser(MainActivity.this);
             }
+            finally {return itemList;}
+        }
+
+        public void alertUser(Context context){
+            AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+            dialog.setTitle("WARNING");
+            dialog.setMessage(this.toString());
+            dialog.setNeutralButton("Ok", null);
+            dialog.create().show();
         }
 
         @Override
         protected void onPostExecute(List<Item> itemList)
         {
-            int duration = Toast.LENGTH_SHORT;
             String[] itemText = new String[itemList.size()];
 
             //converts items to a string to be returned and displayed
