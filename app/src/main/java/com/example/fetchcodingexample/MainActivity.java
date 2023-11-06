@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected List<Item> doInBackground(String... urls) {
             try {
-                //String jsonUrl = "https://fetch-hiring.s3.amazonaws.com/hiring.json";
                 Gson gson = new Gson();
 
                 //Reads data from JSON URL and converts it to a string
@@ -77,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 String jsonTxt = IOUtils.toString(is, StandardCharsets.UTF_8);
                 is.close();
 
-                //code used to test other input variations
+                //Reads data from local file to test other input variations
                 /*InputStream is = getAssets().open("fetchJSONFile.json");
                 String jsonTxt = IOUtils.toString(is, "UTF-8");
                 is.close();*/
