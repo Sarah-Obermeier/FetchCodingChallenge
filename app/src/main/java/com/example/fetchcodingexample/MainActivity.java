@@ -137,11 +137,11 @@ public class MainActivity extends AppCompatActivity {
             String[] itemText = new String[itemList.size()];
 
             //converts items to a string to be returned and displayed
-            for (int i=0; i<itemList.size(); i++)
+            /*for (int i=0; i<itemList.size(); i++)
             {
                 itemText[i] = itemList.get(i).toString();
-            }
-                putDataIntoRecyclerView(itemText);
+            }*/
+                putDataIntoRecyclerView(itemList);
         }
 
         //occurs when an error happens while deserializing the json file
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
             alertUser(MainActivity.this);
         }
 
-        void putDataIntoRecyclerView(String[] itemList)
+        void putDataIntoRecyclerView(List<Item> itemList)
         {
             RecyclerAdapter recyclerAdapter = new RecyclerAdapter(MainActivity.this, itemList);
             recyclerView.setAdapter(recyclerAdapter);

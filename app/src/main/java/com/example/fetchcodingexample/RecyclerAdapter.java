@@ -1,21 +1,23 @@
 package com.example.fetchcodingexample;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
-    String info[];
+    //String info[];
+    List<Item> itemList;
     MainActivity context;
-    public RecyclerAdapter(MainActivity ct, String[] s1){
+    public RecyclerAdapter(MainActivity ct, List<Item> itemList){
         context = ct;
-        info = s1;
+        this.itemList = itemList;
     }
 
     @NonNull
@@ -28,19 +30,32 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerAdapter.MyViewHolder holder, int position) {
-        holder.textView1.setText(info[position]);
+        int id = itemList.get(position).getId();
+        holder.textView1.setText("ID: " + id);
+        int listID = itemList.get(position).getListId();
+        holder.textView2.setText("List ID: " + listID);
+        String itemName = itemList.get(position).getItemName();
+        holder.textView3.setText(itemName);
+        //holder.textView1.setText(info[position]);
+        //holder.textView1.setText(item.getId());
+        //holder.textView2.setText(item.getListId());
+        //holder.textView3.setText(item.getItemName());
     }
 
     @Override
     public int getItemCount() {
-        return info.length;
+        return itemList.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
         TextView textView1;
-        public MyViewHolder(@NonNull View itemView){
+        TextView textView2;
+        TextView textView3;
+        public MyViewHolder(final View itemView){
             super(itemView);
             textView1 = itemView.findViewById(R.id.textView1);
+            textView2 = itemView.findViewById(R.id.textView2);
+            textView3 = itemView.findViewById(R.id.textView3);
         }
     }
 }

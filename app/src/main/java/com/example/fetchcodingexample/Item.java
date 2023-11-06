@@ -29,7 +29,7 @@ public class Item {
         this.name = name;
     }
 
-    @Override
+    /*@Override
     public String toString()
     {
         String idString = "";
@@ -38,6 +38,6 @@ public class Item {
         else {idString = "ID: " + this.getId();}
 
         return idString + " | ListID: " + this.getListId() + " | Name: " + this.getItemName() + "\n";
-    }
+    }*/
 
 }
