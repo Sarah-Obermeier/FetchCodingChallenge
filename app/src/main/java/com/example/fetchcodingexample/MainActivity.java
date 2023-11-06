@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    //String itemText = new DeserializeItem().toString();
                     DeserializeItem di = new DeserializeItem();
                     di.execute("https://fetch-hiring.s3.amazonaws.com/hiring.json");
 
@@ -134,14 +133,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Item> itemList)
         {
-            String[] itemText = new String[itemList.size()];
-
-            //converts items to a string to be returned and displayed
-            /*for (int i=0; i<itemList.size(); i++)
-            {
-                itemText[i] = itemList.get(i).toString();
-            }*/
-                putDataIntoRecyclerView(itemList);
+            putDataIntoRecyclerView(itemList);
         }
 
         //occurs when an error happens while deserializing the json file

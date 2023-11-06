@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
-    //String info[];
     List<Item> itemList;
     MainActivity context;
     public RecyclerAdapter(MainActivity ct, List<Item> itemList){
@@ -32,14 +31,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     public void onBindViewHolder(@NonNull RecyclerAdapter.MyViewHolder holder, int position) {
         int id = itemList.get(position).getId();
         holder.textView1.setText("ID: " + id);
+
         int listID = itemList.get(position).getListId();
         holder.textView2.setText("List ID: " + listID);
+
         String itemName = itemList.get(position).getItemName();
         holder.textView3.setText(itemName);
-        //holder.textView1.setText(info[position]);
-        //holder.textView1.setText(item.getId());
-        //holder.textView2.setText(item.getListId());
-        //holder.textView3.setText(item.getItemName());
     }
 
     @Override

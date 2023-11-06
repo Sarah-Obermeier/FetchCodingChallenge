@@ -29,15 +29,4 @@ public class Item {
         this.name = name;
     }
 
-    /*@Override
-    public String toString()
-    {
-        String idString = "";
-        if (this.getId() < 10) {idString = "ID: " + this.getId() + "     ";}
-        else if (this.getId() < 100) {idString = "ID: " + this.getId() + "  ";}
-        else {idString = "ID: " + this.getId();}
-
-        return idString + " | ListID: " + this.getListId() + " | Name: " + this.getItemName() + "\n";
-    }*/
-
 }
